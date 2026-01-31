@@ -77,7 +77,7 @@ class UserTomogachi:
         self.user_pet.set_energy(max(0, self.user_pet.energy - self.user_pet.ENERGY_RATE))
 
 
-    def entropify(self):
+    def entropify(self):                                                                    # add entropy to the game (get hungrier and more tired etc...)
         if time.time() - self.last_recorded_happiness > self.HAPPINESS_INTERVAL:
             self.adjust_happiness()
             self.last_recorded_happiness = time.time()
@@ -89,9 +89,6 @@ class UserTomogachi:
         if time.time() -  self.last_recorded_energy > self.ENERGY_INTERVAL:
             self.adjust_energy()
             self.last_recorded_energy = time.time()
-
-
-
 
 
 

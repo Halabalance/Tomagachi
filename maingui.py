@@ -14,7 +14,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 import threading
 import time
-
+import io
+import sys
 
 class TamagotchiGUI:
     def __init__(self, root):
@@ -22,24 +23,15 @@ class TamagotchiGUI:
         self.root.title("Tamagotchi Game")
         self.root.geometry("600x1000")
         self.root.configure(bg="#2C3E50")
-
-        # Try to load saved data
         self.data = self.load_game()
-
-        # Flag to control the background thread
         self.running = True
-
-        # Create GUI elements
         self.create_widgets()
-
-        # Start background thread for entropy
         self.update_thread = threading.Thread(target=self.background_update, daemon=True)
+        self.cooldown = False
+        self.COOLDOWN_TIME = 300
+        self.last_recorded_cooldown = time.time()
         self.update_thread.start()
-
-        # Start GUI update loop
         self.update_display()
-
-        # Register save on exit
         atexit.register(self.save_on_exit)
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -193,7 +185,7 @@ class TamagotchiGUI:
         self.status_label.pack(pady=10)
 
     def get_pet_emoji(self):
-        stage = str(self.data.user_pet)
+        stage = self.data.user_pet
         emoji_map = {
             "Baby": "🐣",
             "Child": "🐤",
@@ -254,21 +246,33 @@ class TamagotchiGUI:
     def feed_pet(self):
         if not self.data.user_pet.alive:
             return
-
+        if self.cooldown:
+            self.speech_label.config(text=f"Cannot feed: in cooldown")
+            return
         self.data.user_pet.set_hunger(self.data.user_pet.hunger + 20)
         self.speech_label.config(text=f"fed {self.data.user_pet.name}")
+        self.cooldown = True
         self.root.after(3000, lambda: self.speech_label.config(text=""))
 
     def play_with_pet(self):
         if not self.data.user_pet.alive:
             return
 
+        if self.cooldown:
+            self.speech_label.config(text=f"Cannot play: in cooldown")
+            return
+
         self.data.user_pet.set_happiness(self.data.user_pet.happiness + 20)
+        self.data.user_pet.set_energy(self.data.user_pet.energy -  self.data.user_pet.ENERGY_RATE) #playing is tiring!
         self.speech_label.config(text=f"played with {self.data.user_pet.name}")
         self.root.after(3000, lambda: self.speech_label.config(text=""))
 
     def put_to_sleep(self):
         if not self.data.user_pet.alive:
+            return
+
+        if self.cooldown:
+            self.speech_label.config(text=f"Cannot sleep: in cooldown")
             return
 
         hours = simpledialog.askinteger("Sleep Time",
@@ -287,9 +291,6 @@ class TamagotchiGUI:
         if not self.data.user_pet.alive:
             return
 
-        import io
-        import sys
-
         # Capture the print output
         old_stdout = sys.stdout
         sys.stdout = buffer = io.StringIO()
@@ -307,17 +308,17 @@ class TamagotchiGUI:
             if self.data.user_pet.alive:
                 self.data.entropify()
                 self.data.age()
+                if time.time() - self.last_recorded_cooldown > self.COOLDOWN_TIME:
+                    self.cooldown = False
             time.sleep(0.5)
 
     def save_on_exit(self):
-        """Save game state"""
         print("\nSaving progress... Don't turn off your computer!")
         with open("save.dat", "wb") as f:
             pickle.dump(self.data, f)
         print("Save complete. Goodbye!")
 
     def on_closing(self):
-        """Handle window closing"""
         self.running = False
         self.save_on_exit()
         self.root.destroy()
