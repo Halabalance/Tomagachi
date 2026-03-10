@@ -17,21 +17,20 @@ happiness, and energy levels.
 - [Installation](#-installation)
 - [Game Mechanics](#-game-mechanics)
 - [Technical Details](#-technical-details)
-- [Troubleshooting](#-troubleshooting)
 
-# Features
+#- Features
 - Complete hunger, energy and happiness system designed using real world time
 - Full graphical user interface to see your pet
 - Autosaves to data.dat whenever you close the app
 - pet can talk using random words
 - cooldown after feeding, playing or taking the pet to sleep
 
-# Installation
+#- Installation
 1) download python using https://www.python.org/
 2) download all .py files and put them in any folder
 3) run maingui.py
 
-# Game mechanics
+#- Game mechanics
 There are main 4 main stages your pet will go through
 
 ```
@@ -191,7 +190,7 @@ When this happens:
 - Game saves the final state
 - Start over with a new pet
 
-# Technical Details
+#- Technical Details
 
 ### Architecture
 
