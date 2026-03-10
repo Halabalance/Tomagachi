@@ -12,11 +12,9 @@ class TomagachiTeen(TomagachiBase):
             "What do you want?",
             "Leave me alone!"
             "Go away!!!"
-            "I fucking HATE you!"
             "Im busy!",
             "What now?!",
             "I hate you!",
-            "Fuck you",
             "Whatever.",
             "I'm literally so bored right now.",
             "Can you not?",
